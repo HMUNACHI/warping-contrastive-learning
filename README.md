@@ -27,35 +27,31 @@ Warped Embeddings = Embedding * (1 + N(0.3, 0.2))
 Given two sets of input embeddings, $a$ and $b$, for a batch size of $N$, the combined loss function, $\text{combined\_loss}(a, b)$, incorporates the steps of normalization, warping, similarity matrix computation, softmax probability conversion, and cross-entropy calculation as follows:
 
 1. **Warp and Normalize Input Embeddings:**
-   $$
-   A_i = \frac{a_i}{\|a_i\|_2} \odot (S_{a_i} + \mathbf{1}), \quad B_i = \frac{b_i}{\|b_i\|_2} \odot (S_{b_i} + \mathbf{1})
-   $$
 
-   where $S_{a_i}$ and kGiven two sets of input embeddings, $a$ and $b$, for a batch size of $N$, the combined loss function, $\text{combined\_loss}(a, b)$, incorporates the steps of normalization, warping, similarity matrix computation, softmax probability conversion, and cross-entropy calculation as follows:
-
-1. **Warp and Normalize Input Embeddings:**
-   For each input tensor $a_i$ and $b_i$ in the batches $a$ and $b$:
+   For each input tensor \(a_i\) and \(b_i\) in the batches \(a\) and \(b\):
 
    $$
    A_i = \frac{a_i}{\|a_i\|_2} \odot (S_{a_i} + \mathbf{1}), \quad B_i = \frac{b_i}{\|b_i\|_2} \odot (S_{b_i} + \mathbf{1})
    $$
 
-   where $S_{a_i}$ and $S_{b_i}$ are samples from normal distributions parameterized by mean $\mu$ and standard deviation $\sigma$ specific to each element of $a_i$ and $b_i$.
+   where \(S_{a_i}\) and \(S_{b_i}\) are samples from normal distributions parameterized by mean \(\mu\) and standard deviation \(\sigma\) specific to each element of \(a_i\) and \(b_i\).
 
 2. **Compute Similarity Matrix and Apply Softmax:**
-   The similarity matrix $M$ is calculated as:
+
+   The similarity matrix \(M\) is calculated as:
 
    $$
    M = \frac{AB^\top}{\tau}
    $$
 
-   where each element $M_{ij}$ represents the scaled cosine similarity between $A_i$ and $B_j$. The softmax function is then applied to each row of $M$ to convert these similarities into probabilities:
+   where each element \(M_{ij}\) represents the scaled cosine similarity between \(A_i\) and \(B_j\). The softmax function is then applied to each row of \(M\) to convert these similarities into probabilities:
 
    $$
    P_{ij} = \frac{e^{M_{ij}}}{\sum_{k=1}^{N} e^{M_{ik}}}
    $$
 
 3. **Compute Cross-Entropy Loss:**
+
    The cross-entropy loss for each pair of actual and predicted distributions is calculated as follows:
 
    $$
@@ -66,9 +62,10 @@ Given two sets of input embeddings, $a$ and $b$, for a batch size of $N$, the co
    \text{loss}_b = -\frac{1}{N} \sum_{i=1}^{N} \log(P_{ii}^\top)
    $$
 
-   Here, $P_{ii}^\top$ refers to the probability that the i-th element of $b$ correctly matches the i-th element of $a$ after transpose, effectively capturing the b-to-a direction.
+   Here, \(P_{ii}^\top\) refers to the probability that the i-th element of \(b\) correctly matches the i-th element of \(a\) after transpose, effectively capturing the b-to-a direction.
 
 4. **Combined Loss Expression:**
+
    The final combined loss merges the two directional losses:
 
    $$
@@ -78,6 +75,7 @@ Given two sets of input embeddings, $a$ and $b$, for a batch size of $N$, the co
    $$
    = -\frac{1}{2N} \left( \sum_{i=1}^{N} \log\left(\frac{e^{M_{ii}}}{\sum_{k=1}^{N} e^{M_{ik}}}\right) + \sum_{i=1}^{N} \log\left(\frac{e^{M_{ii}^\top}}{\sum_{k=1}^{N} e^{M_{ki}^\top}}\right) \right)
    $$
+
 
 This formal expression encapsulates the entire process: starting from the input embeddings, applying normalization and warping, constructing the similarity matrix, converting similarities to probabilities with softmax, and finally calculating the average cross-entropy loss from both directions of similarity.
 $S_{b_i}$ are samples from normal distributions parameterized by mean $\mu$ and standard deviation $\sigma$ specific to each element of $a_i$ and $b_i$.
